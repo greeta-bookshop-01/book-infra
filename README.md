@@ -29,11 +29,9 @@
 
 ### Step 01 - Clone repositories
 
-**https://github.com/greeta-book-01/book-api** (API Source Code and Docker Images Repository)
+**https://github.com/greeta-bookshop-01/book-api** (API Source Code and Docker Images Repository)
 
-**https://github.com/greeta-book-01/book-infra** (Terraform Infrastructure and GitOps Pipeline)
-
-**https://github.com/greeta-book-01/book-ui** (UI Source Code and Docker Images Repository)
+**https://github.com/greeta-bookshop-01/book-infra** (Terraform Infrastructure and GitOps Pipeline)
 
 ### Step-02: Prepare Your AWS Account
 
