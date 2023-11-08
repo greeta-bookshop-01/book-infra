@@ -1,10 +1,10 @@
 resource "kubernetes_ingress_v1" "ingress_default" {
   depends_on = [helm_release.loadbalancer_controller,
                 helm_release.external_dns,
-                kubernetes_service_v1.book_ui_service,
                 kubernetes_service_v1.gateway_service,
-                kubernetes_service_v1.erp_service,
-                kubernetes_service_v1.book_service,
+                kubernetes_service_v1.catalog_service,
+                kubernetes_service_v1.dispatcher_service,
+                kubernetes_service_v1.order_service,
                 kubernetes_service_v1.keycloak_server_service,
                 kubernetes_ingress_class_v1.ingress_class_default]
   wait_for_load_balancer = true
@@ -36,7 +36,7 @@ resource "kubernetes_ingress_v1" "ingress_default" {
       # SSL Redirect Setting
       "alb.ingress.kubernetes.io/ssl-redirect" = 443
       # External DNS - For creating a Record Set in Route53
-      "external-dns.alpha.kubernetes.io/hostname" = "book.greeta.net, bookapi.greeta.net, keycloak.greeta.net, kafka.greeta.net"
+      "external-dns.alpha.kubernetes.io/hostname" = "bookapi.greeta.net, keycloak.greeta.net"
       "alb.ingress.kubernetes.io/target-type" = "ip"
     }  
   }
@@ -92,27 +92,7 @@ resource "kubernetes_ingress_v1" "ingress_default" {
           path_type = "Prefix"
         }
       }
-    }   
-
-    rule {
-      host = "book.greeta.net"
-      http {
-
-        path {
-          backend {
-            service {
-              name = "book-ui"
-              port {
-                number = 4200
-              }
-            }
-          }
-
-          path = "/"
-          path_type = "Prefix"
-        }
-      }
-    }                  
+    }
     
   }
 }
@@ -124,10 +104,10 @@ resource "kubernetes_ingress_v1" "ingress_default" {
 resource "kubernetes_ingress_v1" "ingress_observability_stack" {
   depends_on = [helm_release.loadbalancer_controller,
                 helm_release.external_dns,
-                kubernetes_service_v1.book_ui_service,
                 kubernetes_service_v1.gateway_service,
-                kubernetes_service_v1.erp_service,
-                kubernetes_service_v1.book_service,
+                kubernetes_service_v1.dispatcher_service,
+                kubernetes_service_v1.catalog_service,
+                kubernetes_service_v1.order_service,
                 kubernetes_service_v1.keycloak_server_service,
                 null_resource.deploy_grafana_script,
                 null_resource.update_kubeconfig,

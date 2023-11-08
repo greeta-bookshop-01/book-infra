@@ -1,22 +1,22 @@
-resource "kubernetes_config_map_v1" "erp" {
+resource "kubernetes_config_map_v1" "dispatcher" {
   metadata {
-    name      = "erp"
+    name      = "dispatcher"
     labels = {
-      app = "erp"
+      app = "dispatcher"
     }
   }
 
   data = {
-    "application.yml" = file("${path.module}/app-conf/erp.yml")
+    "application.yml" = file("${path.module}/app-conf/dispatcher.yml")
   }
 }
 
-resource "kubernetes_deployment_v1" "erp_deployment" {
-  depends_on = [kubernetes_deployment_v1.book_mysql_deployment]
+resource "kubernetes_deployment_v1" "dispatcher_deployment" {
+  depends_on = [kubernetes_deployment_v1.book_postgres_deployment]
   metadata {
-    name = "erp"
+    name = "dispatcher"
     labels = {
-      app = "erp"
+      app = "dispatcher"
     }
   }
  
@@ -24,13 +24,13 @@ resource "kubernetes_deployment_v1" "erp_deployment" {
     replicas = 1
     selector {
       match_labels = {
-        app = "erp"
+        app = "dispatcher"
       }
     }
     template {
       metadata {
         labels = {
-          app = "erp"
+          app = "dispatcher"
         }
         annotations = {
           "prometheus.io/scrape" = "true"
@@ -42,12 +42,16 @@ resource "kubernetes_deployment_v1" "erp_deployment" {
         service_account_name = "spring-cloud-kubernetes"      
         
         container {
-          image = "ghcr.io/greeta-book-01/erp-service:023c51c1fb2529e4a2d1907b950a464f6b88ca2d"
-          name  = "erp"
+          image = "ghcr.io/greeta-bookshop-01/dispatcher-service:023c51c1fb2529e4a2d1907b950a464f6b88ca2d"
+          name  = "dispatcher"
           image_pull_policy = "Always"
           port {
             container_port = 8080
-          }          
+          }  
+          port {
+            container_port = 8003
+          } 
+
           env {
             name  = "SPRING_CLOUD_BOOTSTRAP_ENABLED"
             value = "true"
@@ -65,7 +69,7 @@ resource "kubernetes_deployment_v1" "erp_deployment" {
 
           env {
             name  = "OTEL_SERVICE_NAME"
-            value = "erp"
+            value = "dispatcher"
           }
 
           env {
@@ -77,6 +81,21 @@ resource "kubernetes_deployment_v1" "erp_deployment" {
             name  = "OTEL_METRICS_EXPORTER"
             value = "none"
           }
+
+          env {
+            name  = "BPL_DEBUG_ENABLED"
+            value = "true"
+          }
+
+          env {
+            name  = "BPL_DEBUG_PORT"
+            value = "8003"
+          }
+
+          env {
+            name  = "SPRING_RABBITMQ_HOST"
+            value = "book-rabbitmq"
+          }          
 
           # resources {
           #   requests = {
@@ -121,9 +140,9 @@ resource "kubernetes_deployment_v1" "erp_deployment" {
   }
 }
 
-resource "kubernetes_horizontal_pod_autoscaler_v1" "erp_hpa" {
+resource "kubernetes_horizontal_pod_autoscaler_v1" "dispatcher_hpa" {
   metadata {
-    name = "erp-hpa"
+    name = "dispatcher-hpa"
   }
   spec {
     max_replicas = 2
@@ -131,24 +150,24 @@ resource "kubernetes_horizontal_pod_autoscaler_v1" "erp_hpa" {
     scale_target_ref {
       api_version = "apps/v1"
       kind = "Deployment"
-      name = kubernetes_deployment_v1.erp_deployment.metadata[0].name 
+      name = kubernetes_deployment_v1.dispatcher_deployment.metadata[0].name 
     }
     target_cpu_utilization_percentage = 70
   }
 }
 
-resource "kubernetes_service_v1" "erp_service" {
-  depends_on = [kubernetes_deployment_v1.erp_deployment]
+resource "kubernetes_service_v1" "dispatcher_service" {
+  depends_on = [kubernetes_deployment_v1.dispatcher_deployment]
   metadata {
-    name = "erp"
+    name = "dispatcher"
     labels = {
-      app = "erp"
+      app = "dispatcher"
       spring-boot = "true"
     }
   }
   spec {
     selector = {
-      app = "erp"
+      app = "dispatcher"
     }
     port {
       port = 8080

@@ -1,34 +1,35 @@
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework
+  tomcat:
+    connection-timeout: 2s
+    keep-alive-timeout: 15s
+    threads:
+      max: 50
+      min-spare: 5
+
 spring:
   application:
-    name: book
-  output:
-    ansi:
-      enabled: ALWAYS
-  jpa:
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-  
-  data:
-    rest:
-      base-path: /
+    name: catalog
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
 
   datasource:
-    url: jdbc:mysql://book-mysql:3306/reactlibrarydatabase?useSSL=false&useUnicode=yes&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: root
-    password: test1234!
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
+    username: user
+    password: password
+    url: jdbc:postgresql://book-postgres:5432/polardb_catalog
+    hikari:
+      connection-timeout: 2000 #ms
+      maximum-pool-size: 5
   keycloak:
-    server-url: https://keycloak.greeta.net
+    server-url: http://keycloak-server:8080
+    server-external-url: https://keycloak.greeta.net
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${spring.keycloak.server-url}/realms/book-realm
-          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs       
+          issuer-uri: ${spring.keycloak.server-external-url}/realms/book-realm
+          jwk-set-uri: ${spring.keycloak.server-url}/realms/book-realm/protocol/openid-connect/certs
 
 logging:
   pattern:
@@ -40,9 +41,6 @@ logging:
 
 info:
   system: Book Service
-
-server:
-  forward-headers-strategy: framework
 
 jwt:
   auth:
@@ -75,5 +73,5 @@ management:
 
 openapi:
   oauthflow:
-    authServerUrl: https://keycloak.greeta.net
+    authServerUrl: ${spring.keycloak.server-external-url}
     realm: book-realm
