@@ -151,3 +151,5 @@ Please make sure you run terraform-destroy.sh script, instead of just calling te
 ```
 sh terraform-destroy.sh  
 ```
+
+If you accidentally used **terraform destroy** directly, then wait for about 20 minutes, then you need to remove all resources manually with AWS Console: EC2 - Load Balancer, EKS - book-cluster, VPC - sandbox, Route 53 Records, IAM Roles. If VPC is failed to delete, wait for EKS cluster to finish deletion.
