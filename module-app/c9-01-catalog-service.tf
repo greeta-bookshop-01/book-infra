@@ -171,7 +171,12 @@ resource "kubernetes_service_v1" "catalog_service" {
       app = "catalog"
     }
     port {
+      name = "prod"
       port = 8080
     }
+    port {
+      name = "debug"
+      port = 8001
+    }    
   }
 }

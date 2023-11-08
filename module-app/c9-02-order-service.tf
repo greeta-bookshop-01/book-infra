@@ -165,7 +165,12 @@ resource "kubernetes_service_v1" "order_service" {
       app = "order"
     }
     port {
+      name = "prod"
       port = 8080
     }
+    port {
+      name = "debug"
+      port = 8002
+    }    
   }
 }
