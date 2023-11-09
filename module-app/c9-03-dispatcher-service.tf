@@ -42,7 +42,7 @@ resource "kubernetes_deployment_v1" "dispatcher_deployment" {
         service_account_name = "spring-cloud-kubernetes"      
         
         container {
-          image = "ghcr.io/greeta-bookshop-01/dispatcher-service:eeb88fc66521f43892f5dcecfadd50ca638b7162"
+          image = "ghcr.io/greeta-bookshop-01/dispatcher-service:ce144e6ea80cefa03c6d07cd20c655bd779a33b9"
           name  = "dispatcher"
           image_pull_policy = "Always"
           port {
